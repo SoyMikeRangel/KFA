@@ -1,6 +1,6 @@
 <a align="center"><img src="https://github.com/PocketmineSmashPE/KFA/blob/master/logo.png"></img></a>
 
-<div align="center">
+<div align="left">
 	<a href="https://discord.gg/">
         <img src="https://img.shields.io/badge/chat-on%20discord-7289da.svg" alt="discord">
     </a>
@@ -32,7 +32,7 @@
 
 - **Other released versions [here](https://github.com/PocketmineSmashPE/KFA/releases/)**
 
-<div align="center">
+<div align="left">
 	<h2>How to setup?</h2>
 </div>
 
