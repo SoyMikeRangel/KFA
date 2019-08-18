@@ -218,6 +218,9 @@ class  EventHandler implements Listener
 					$event->setCancelled(); //necessary so that the actual command wont work
 					KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($event->getPlayer()));
 				break;
+				
+				//i was dumb, i couldnt setup the fckn arena xD
+				case '/ffa': break;
 
 				default :
 					$event->setCancelled();
