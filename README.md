@@ -1,7 +1,4 @@
-####KFA
-
-
-            ![alt text](https://github.com/PocketmineSmashPE/KFA/blob/master/biohazard.png)
+  ![alt text](https://github.com/PocketmineSmashPE/KFA/blob/master/biohazard.png) ### KFA
 
 A (not so) basic KFA Plugin for PMMP
 
