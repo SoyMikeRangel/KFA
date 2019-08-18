@@ -7,9 +7,6 @@
     <a href="https://github.com/PocketmineSmashPE/KFA/blob/master/LICENSE">
         <img src="https://img.shields.io/badge/license-Apache%20License%202.0-yellowgreen.svg" alt="license">
     </a>
-    <a href="https://poggit.pmmp.io/">
-        <img src="https://poggit.pmmp.io/" alt="poggit-ci">
-    </a>
     <br><br>
     ✔️ Simple setup
     <br>
@@ -33,7 +30,7 @@
 | 1.0 | [GitHub](https://github.com/PocketmineSmashPE/KFA/releases/download/1.0/KFA.zip) | [GitHub](https://github.com/PocketmineSmashPE/KFA/releases/download/1.0/KFA_v1.0-beta.phar) |
 <br>
 
-- **Other released versions [here](https://github.com/GamakCZ/SkyWars/releases)**
+- **Other released versions [here](https://github.com/PocketmineSmashPE/KFA/releases/)**
 
 <div align="center">
 	<h2>How to setup?</h2>
@@ -52,7 +49,7 @@
 
 - <h3>Video:</h3>
 
-<a align="center" href="https://www.youtube.com/"><img src="http://img.youtube.com/"></a>
+<p>SOON</p>
 
 - _Setup commands_:
 
@@ -66,26 +63,3 @@
 | join | Join ffa command |
 | leave | leave ffa arena command |
 | tops | set tops npc |
-
-<div align="center">
-	<h2>Commands:</h2>
-</div>
-<br>
-
-<p align="center">  
-
-
-</p>
-
-<div align="center">
-	<h2>Permissions</h2>
-</div>
-<br>
-
-<p align="center">
-
-</p>
-
-<div align="center">
-	
-<div align="center">
