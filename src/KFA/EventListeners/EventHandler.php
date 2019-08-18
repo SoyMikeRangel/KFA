@@ -70,28 +70,42 @@ class  EventHandler implements Listener
 		$level = Server::getInstance()->getLevelByName(DataManager::getArena());
 		$pos = new Vector3($x, $y + 1, $z);
 		if ($player instanceof Player) {
-			if ($player->getLevel()->getName() == DataManager::getArena()) {
-				if ($player->getHealth() < 2.0 || $player->getHealth() == 0.0) {
-					KFA::getInstance()->getScheduler()->scheduleRepeatingTask(new RespawnTask($player), 20);
-					$level->dropItem(new Vector3($x, $y, $z), Item::get(Item::GOLDEN_APPLE, 0, DataManager::getGapples()));
-					$player->getInventory()->clearAll();
-					$player->getArmorInventory()->clearAll();
-					$player->setHealth(20);
-					$player->setFood(20);
-					$player->getInventory()->setItem(4, Item::get(Item::SLIME_BALL, 0, 1)->setCustomName("§eLeave FFA"));
-					if ($event instanceof EntityDamageByEntityEvent) {
-						$cause = $event->getEntity()->getLastDamageCause();
-						$victim = $event->getEntity();
-						if ($cause instanceof EntityDamageByEntityEvent) {
-							if ($cause->getDamager() instanceof Player && $victim instanceof Player) {
-								$cause->getDamager()->setHealth(20);
-								$level->addParticle(new HeartParticle($pos, 2));
-								$level->addSound(new AnvilFallSound($pos));
-								$this->manager->setKill($cause->getDamager()->getName());
-								$this->manager->setDeath($victim->getName());
+			if ($player->getLevel()->getFolderName() == DataManager::getArena()) {
+
+				switch($event->getCause())
+				{
+					case 1: case 2: case 5: case 7: case 8: case 11:
+					//entity attack, projectile, fire, lava, drowning, void
+
+						if ($event->getFinalDamage() > $player->getHealth())
+						{
+							$event->setCancelled();
+							KFA::getInstance()->getScheduler()->scheduleRepeatingTask(new RespawnTask($player), 20);
+							$level->dropItem(new Vector3($x, $y, $z), Item::get(Item::GOLDEN_APPLE, 0, DataManager::getGapples()));
+							$player->getInventory()->clearAll();
+							$player->getArmorInventory()->clearAll();
+							$player->setHealth(20);
+							$player->setFood(20);
+							$player->getInventory()->setItem(4, Item::get(Item::SLIME_BALL, 0, 1)->setCustomName("§eLeave FFA"));
+							if ($event instanceof EntityDamageByEntityEvent) {
+								$cause = $event->getEntity()->getLastDamageCause();
+								$victim = $event->getEntity();
+								if ($cause instanceof EntityDamageByEntityEvent) {
+									if ($cause->getDamager() instanceof Player && $victim instanceof Player) {
+										$cause->getDamager()->setHealth(20);
+										$level->addParticle(new HeartParticle($pos, 2));
+										$level->addSound(new AnvilFallSound($pos));
+										$this->manager->setKill($cause->getDamager()->getName());
+										$this->manager->setDeath($victim->getName());
+									}
+								}
 							}
 						}
-					}
+
+					break;
+
+					default: //other than those above:
+						return $event->setCancelled();
 				}
 			}
 		}
@@ -102,7 +116,7 @@ class  EventHandler implements Listener
 	 */
 	public function noDrops(EntityDeathEvent $event)
 	{
-		if ($event->getEntity()->getLevel()->getName() == DataManager::getArena()) {
+		if ($event->getEntity()->getLevel()->getFolderName() == DataManager::getArena()) {
 			$event->setDrops([]);
 		}
 	}
@@ -116,11 +130,12 @@ class  EventHandler implements Listener
 		$npc = $event->getEntity();
 		$player = $event->getDamager();
 		if ($npc instanceof JoinEntity && $player instanceof Player) {
+			$event->setCancelled(true);
 			$name = $player->getName();
 			$player->teleport(DataManager::getRandomSpawn());
+			$player->setGamemode(2);
 			KFA::getInstance()->getScheduler()->scheduleTask(new KitTask($player));
-			$player->addTitle("§c☣FFA☣", "§7> Be the last one!", 20, 20, 20);
-			$event->setCancelled(true);
+			$player->addTitle("§c☣ F F A ☣", "§7> Kill them all!");
 			$sql = $connection->getDatabase()->prepare("INSERT OR IGNORE INTO Players(NAME,KILLS,DEATHS,KDR) SELECT :name, :kills, :deaths, :kdr WHERE NOT EXISTS(SELECT * FROM Players WHERE NAME = :name);");
 			$sql->bindValue(":name", $name, SQLITE3_TEXT);
 			$sql->bindValue(":kills", 0, SQLITE3_NUM);
@@ -135,7 +150,7 @@ class  EventHandler implements Listener
 	 */
 	public function onUseSlime(PlayerInteractEvent $event)
 	{
-		if ($event->getPlayer()->getLevel()->getName() == DataManager::getArena()) {
+		if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
 			if ($event->getItem()->getId() == Item::SLIME_BALL && $event->getItem()->getCustomName() == "§eLeave FFA") {
 				KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($event->getPlayer()));
 			}
@@ -150,7 +165,7 @@ class  EventHandler implements Listener
 		$damager = $event->getDamager();
 		$victim = $event->getEntity();
 		if (DataManager::getSettings()->get('knockback_enabled') == true) {
-			if ($damager->getLevel()->getName() == DataManager::getArena() && $victim->getLevel()->getName() == DataManager::getArena()) {
+			if ($damager->getLevel()->getFolderName() == DataManager::getArena() && $victim->getLevel()->getFolderName() == DataManager::getArena()) {
 				$event->setKnockBack(DataManager::getSettings()->get('knockback'));
 			}
 		}
@@ -161,12 +176,12 @@ class  EventHandler implements Listener
 	 */
 	public function disableHunger(PlayerExhaustEvent $event)
 	{
-		if (DataManager::getSettings()->get('hunger') == 'true') {
-			if ($event->getEntity()->getLevel()->getName() == DataManager::getArena()) {
-				$event->setCancelled(true);
+		if (DataManager::getSettings()->get('hunger')) {
+			if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
+				$event->setCancelled();
 			}
 		} else {
-			if ($event->getEntity()->getLevel()->getName() == DataManager::getArena()) {
+			if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
 				$event->setCancelled(false);
 			}
 		}
@@ -178,8 +193,8 @@ class  EventHandler implements Listener
 	public function onHitLeaderboards(EntityDamageByEntityEvent $event)
 	{
 		$npc = $event->getEntity();
-		$player = $event->getDamager();
-		if ($npc instanceof Leaderboard && $player instanceof Player) {
+		#$player = $event->getDamager(); //unnecessary
+		if ($npc instanceof Leaderboard) {
 			$event->setCancelled(true);
 		}
 	}
@@ -189,14 +204,28 @@ class  EventHandler implements Listener
 	 */
 	public static function noBasicDamage(EntityDamageEvent $event)
 	{
-		if ($event->getCause() == EntityDamageEvent::CAUSE_FALL) {
-			$event->setCancelled();
-		}
-		if ($event->getCause() == EntityDamageEvent::CAUSE_SUICIDE) {
-			$event->setCancelled();
-		}
-		if ($event->getCause() == EntityDamageEvent::CAUSE_STARVATION) {
-			$event->setCancelled();
+
+	}
+
+	public function testingCommands(\pocketmine\event\player\PlayerCommandPreprocessEvent $event)
+	{
+		if($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena())
+		{
+			$command = explode(" ", $event->getMessage());
+			switch($command[0])
+			{
+				case '/spawn':
+					$event->setCancelled(); //necessary so that the actual command wont work
+					KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($event->getPlayer()));
+				break;
+				
+				//i was dumb, i couldnt setup the fckn arena xD
+				case '/ffa': break;
+
+				default :
+					$event->setCancelled();
+					$event->getPlayer()->sendMessage("§6Commands and Chat are disabled here other than §f/spawn.");
+			}
 		}
 	}
 }
