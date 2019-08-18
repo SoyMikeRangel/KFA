@@ -175,9 +175,9 @@ class DataManager
 	public static function getArenaPlayers(): int
 	{
 		self::$arena = new Config(KFA::getInstance()->getDataFolder() . "settings.yml", Config::YAML);
-		$level = Server::getInstance()->getLevelByName(self::$arena->get('arena'));
+		KFA::getInstance()->getServer()->loadLevel(self::$arena->get('arena')); // Load it first
+		$level = Server::getInstance()->getLevelByName(self::$arena->get('arena')); // then use it
 		if ($level instanceof Level) {
-			KFA::getInstance()->getServer()->loadLevel($level->getName());
 			return count($level->getPlayers());
 		}
 	}

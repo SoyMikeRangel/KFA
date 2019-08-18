@@ -43,6 +43,7 @@ class PluginUtils
 	"§asetup " . TE::GOLD . ": " . "§7Configure ffa arena" . "\n" .
 	"§aarena " . TE::GOLD . ": " . "§7Select FFA level" . "\n" .
 	"§anpc " . TE::GOLD . ": " . "§7Set the npc game" . "\n" .
+	"§atops " . TE::GOLD . ": " . "§7Set the npc for leaderboard" . "\n" .
 	"§aremnpc " . TE::GOLD . ": " . "§7Remove NPC" . "\n";
 
 	/**
