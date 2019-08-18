@@ -4,4 +4,5 @@ branches:
 projects:
   KFA:
     path: ""
+    icon: logo.png
 ...
