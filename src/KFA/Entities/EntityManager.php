@@ -33,6 +33,7 @@ class EntityManager
 	 */
 	public function setJoinEntity(Player $player)
 	{
+		$player->saveNBT();
 		$nbt = Entity::createBaseNBT(new Vector3((float)$player->getX(), (float)$player->getY(), (float)$player->getZ()));
 		$nbt->setTag(clone $player->namedtag->getCompoundTag("Skin"));
 		$human = new JoinEntity($player->getLevel(), $nbt);
@@ -49,8 +50,9 @@ class EntityManager
 	 */
 	public function setLeaderboardEntity(Player $player)
 	{
+		$player->saveNBT();
 		$nbt = Entity::createBaseNBT(new Vector3((float)$player->getX(), (float)$player->getY(), (float)$player->getZ()));
-		$nbt->setTag($player->namedtag->getTag('Skin'));
+		$nbt->setTag(clone $player->namedtag->getCompoundTag("Skin"));
 		$human = new Leaderboard($player->getLevel(), $nbt);
 		$human->setSkin(new Skin("textfloat", $human->getInvisibleSkin()));
 		$human->setNameTagVisible(true);
