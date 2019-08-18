@@ -48,8 +48,8 @@ class RespawnTask extends Task
 	{
 		if ($this->player->getLevel()->getName() == DataManager::getArena()) {
 			$this->player->setGamemode(3);
-			$this->player->addTitle("§4$this->seconds", "§7> Take revenge!");
-			$this->player->sendTip("§4You are dead!");
+			$this->player->addTitle("§4".$this->seconds, "§7...Resurrecting...");
+			$this->player->sendTip("§4You died!");
 		}
 		if ($this->seconds == 0) {
 			KFA::getInstance()->getScheduler()->cancelTask($this->getTaskId());

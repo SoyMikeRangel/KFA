@@ -48,11 +48,11 @@ class LeaveTask extends Task
 	{
 		if ($this->player->getLevel()->getName() == DataManager::getArena()) {
 			PluginUtils::sendSucessMessage("Leaving FFA, please wait...", $this->player);
-			$this->player->getInventory()->clearAll(true);
+			$this->player->getInventory()->clearAll();
 			$this->player->setFood(20.0);
 			$this->player->setHealth(20.0);
 			$this->player->removeAllEffects();
-			$this->player->getArmorInventory()->clearAll(true);
+			$this->player->getArmorInventory()->clearAll();
 			$hub = Server::getInstance()->getDefaultLevel()->getSafeSpawn();
 			$this->player->teleport($hub);
 		} else {
