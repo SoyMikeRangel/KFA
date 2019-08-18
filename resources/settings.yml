@@ -1,0 +1,44 @@
+#    KKKKKKKKK    KKKKKKK FFFFFFFFFFFFFFFFFFFFFF      AAA
+#    K:::::::K    K:::::K F::::::::::::::::::::F     A:::A
+#    K:::::::K    K:::::K F::::::::::::::::::::F    A:::::A
+#    K:::::::K   K::::::K FF::::::FFFFFFFFF::::F   A:::::::A
+#    KK::::::K  K:::::KKK F:::::F       FFFFFF    A:::::::::A
+#    K:::::K K:::::K      F:::::F                A:::::A:::::A
+#    K::::::K:::::K       F::::::FFFFFFFFFF     A:::::A A:::::A
+#    K:::::::::::K        F:::::::::::::::F    A:::::A   A:::::A
+#    K:::::::::::K        F:::::::::::::::F   A:::::A     A:::::A
+#    K::::::K:::::K       F::::::FFFFFFFFFF  A:::::AAAAAAAAA:::::A
+#    K:::::K K:::::K      F:::::F           A:::::::::::::::::::::A
+#    KK::::::K  K:::::KKK F:::::F         A:::::AAAAAAAAAAAAA:::::A
+#    K:::::::K   K::::::K FF::::FF       A:::::A             A:::::A
+#    K:::::::K    K:::::K F:::::FF      A:::::A               A:::::A
+#    K:::::::K    K:::::K F:::::FF    A:::::A                 A:::::A
+#    KKKKKKKKK    KKKKKKK FFFFFFFFFFF  AAAAAAA                   AAAAAAA
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Lesser General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#   @author PocketMineSmash
+#   @link http://www.pocketmine.net/
+
+# This is the configuration file of KFA, please read the instructions before editing.
+# This is the FFA Arena: <default: ffa>
+arena: ffa
+enabled: false
+spawn-1: 0
+spawn-2: 0
+spawn-3: 0
+
+# Number of golden apples when a player dies: <default: 1>
+gapples: 1
+
+# Set this to false if you dont want enchantments: <default: true>
+enchantments: true
+
+# Modify knockback in arena: <default: 1>
+knockback_enabled: false
+knockback: 1
+
+# Enable or disable hunger in arena
+hunger: false
