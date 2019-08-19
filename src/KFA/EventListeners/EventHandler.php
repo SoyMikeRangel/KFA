@@ -34,7 +34,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerExhaustEvent;
-use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\player\PlayerItemHeldEvent;
 use pocketmine\item\Item;
 use pocketmine\level\particle\HeartParticle;
 use pocketmine\level\sound\AnvilFallSound;
@@ -71,7 +71,6 @@ class  EventHandler implements Listener
 		$pos = new Vector3($x, $y + 1, $z);
 		if ($player instanceof Player) {
 			if ($player->getLevel()->getFolderName() == DataManager::getArena()) {
-
 				switch($event->getCause())
 				{
 					case 1: case 2: case 5: case 7: case 8: case 11:
@@ -101,9 +100,7 @@ class  EventHandler implements Listener
 								}
 							}
 						}
-
 					break;
-
 					default: //other than those above:
 						return $event->setCancelled();
 				}
@@ -146,9 +143,9 @@ class  EventHandler implements Listener
 	}
 
 	/**
-	 * @param PlayerInteractEvent $event
+	 * @param PlayerItemHeldEvent $event
 	 */
-	public function onUseSlime(PlayerInteractEvent $event)
+	public function onUseSlime(PlayerItemHeldEvent $event)
 	{
 		if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
 			if ($event->getItem()->getId() == Item::SLIME_BALL && $event->getItem()->getCustomName() == "§eLeave FFA") {
@@ -178,7 +175,7 @@ class  EventHandler implements Listener
 	{
 		if (DataManager::getSettings()->get('hunger')) {
 			if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
-				$event->setCancelled();
+				$event->setCancelled(true);
 			}
 		} else {
 			if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
@@ -193,39 +190,8 @@ class  EventHandler implements Listener
 	public function onHitLeaderboards(EntityDamageByEntityEvent $event)
 	{
 		$npc = $event->getEntity();
-		#$player = $event->getDamager(); //unnecessary
 		if ($npc instanceof Leaderboard) {
 			$event->setCancelled(true);
-		}
-	}
-
-	/**
-	 * @param EntityDamageEvent $event
-	 */
-	public static function noBasicDamage(EntityDamageEvent $event)
-	{
-
-	}
-
-	public function testingCommands(\pocketmine\event\player\PlayerCommandPreprocessEvent $event)
-	{
-		if($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena())
-		{
-			$command = explode(" ", $event->getMessage());
-			switch($command[0])
-			{
-				case '/spawn':
-					$event->setCancelled(); //necessary so that the actual command wont work
-					KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($event->getPlayer()));
-				break;
-				
-				//i was dumb, i couldnt setup the fckn arena xD
-				case '/ffa': break;
-
-				default :
-					$event->setCancelled();
-					$event->getPlayer()->sendMessage("§6Commands and Chat are disabled here other than §f/spawn.");
-			}
 		}
 	}
 }

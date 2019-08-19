@@ -46,7 +46,9 @@ class KFA extends PluginBase
 		self::$instance = $this;
 		$this->savePluginResources();
 		$this->verifyConnection();
-		$this->verifyArenaStatus();
+		if ($this->verifyArenaStatus()) {
+			$this->getServer()->loadLevel(DataManager::getSettings()->get('arena'));
+		}
 		$this->getServer()->getCommandMap()->register('ffa', new KFACommand());
 		$this->getServer()->getPluginManager()->registerEvents(new EventHandler($this), $this);
 		$this->getScheduler()->scheduleRepeatingTask(new UpdateNPC(), 20);
@@ -103,14 +105,16 @@ class KFA extends PluginBase
 
 	/**
 	 * Verify if arena is enabled
+	 * @return bool
 	 */
-	private function verifyArenaStatus()
+	private function verifyArenaStatus(): bool
 	{
 		if (DataManager::getArenaStatus() == 'true') {
 			PluginUtils::sendSucessLog("Arena enabled");
-			$this->getServer()->loadLevel(DataManager::getArena());
+			return true;
 		} else {
 			PluginUtils::sendWarningLog("Your arena is not configured, please configure arena before playing!");
+			return false;
 		}
 	}
 

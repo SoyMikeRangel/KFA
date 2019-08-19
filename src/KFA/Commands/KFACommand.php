@@ -88,8 +88,15 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 					case 'arena':
 						if ($sender->isOp()) {
 							if (isset($args[1])) {
-								DataManager::setArena($sender->getPlayer(), $args[1]);
-								PluginUtils::sendSucessMessage("Arena level configured!", $sender->getPlayer());
+								if (Server::getInstance()->isLevelGenerated($args[1])) {
+									Server::getInstance()->loadLevel($args[1]);
+									$level = Server::getInstance()->getLevelByName($args[1]);
+									$sender->teleport($level->getSafeSpawn());
+									DataManager::setArena($sender->getPlayer(), $args[1]);
+									PluginUtils::sendSucessMessage("Arena level configured! Configure spawns.", $sender->getPlayer());
+								} else {
+									PluginUtils::sendErrorMessage("That level is not generated!", $sender->getPlayer());
+								}
 							} else {
 								PluginUtils::sendErrorMessage("Use: </ffa arena {arenaName}>", $sender->getPlayer());
 							}
@@ -134,6 +141,10 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 									case 'enable':
 										DataManager::setArenaStatus();
 										PluginUtils::sendSucessMessage("Arena enabled!", $sender->getPlayer());
+										$sender->teleport(Server::getInstance()->getDefaultLevel()->getSafeSpawn());
+										break;
+									default:
+										PluginUtils::sendErrorMessage('use: </ffa setup spawn1|2|3|enable>', $sender->getPlayer());
 										break;
 								}
 							} else {

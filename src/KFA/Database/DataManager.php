@@ -24,7 +24,6 @@ namespace KFA\Database;
 
 use KFA\KFA;
 use KFA\PluginUtils\PluginUtils;
-use pocketmine\level\Level;
 use pocketmine\level\Position;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -113,17 +112,6 @@ class DataManager
 		}
 	}
 
-	public static function verifyArenaExists(): bool
-	{
-		self::$arena = new Config(KFA::getInstance()->getDataFolder() . "settings.yml", Config::YAML);
-		$arena = self::$arena->get('arena');
-		if (Server::getInstance()->isLevelGenerated($arena)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
 	/**
 	 * Get Arena status
 	 */
@@ -174,32 +162,11 @@ class DataManager
 	 */
 	public static function getArenaPlayers(): int
 	{
-		self::$arena = new Config(KFA::getInstance()->getDataFolder() . "settings.yml", Config::YAML);
-		KFA::getInstance()->getServer()->loadLevel(self::$arena->get('arena')); // Load it first
-		$level = Server::getInstance()->getLevelByName(self::$arena->get('arena')); // then use it
-		if ($level instanceof Level) {
-			return count($level->getPlayers());
-		}
+		KFA::getInstance()->getServer()->loadLevel(self::getSettings()->get('arena')); // Load it first
+		$level = Server::getInstance()->getLevelByName(self::getSettings()->get('arena')); // then use it
+		return count($level->getPlayers());
 	}
 
-	/**
-	 * @param Player $player
-	 * Obtener estadisticas del jugador
-	 */
-	public function getStats(Player $player)
-	{
-		$db = new Connection(KFA::getInstance());
-		$sql = $db->prepare("SELECT NAME, KILLS, DEATHS, KDR FROM Players WHERE NAME = :name");
-		$sql->bindValue(":name", $player->getName());
-		$res = $sql->execute();
-		if ($row = $res->fetchArray(SQLITE3_ASSOC)) {
-			$player->sendMessage("Your stats");
-			$player->sendMessage("Your name: " . $row['NAME']);
-			$player->sendMessage("Your kills: " . $row['KILLS']);
-			$player->sendMessage("Your deaths: " . $row['DEATHS']);
-			$player->sendMessage("Your KDR: " . $row['KDR']);
-		}
-	}
 
 	/**
 	 * @param string $player
@@ -235,20 +202,6 @@ class DataManager
 			return 0;
 		}
 		return $this->getKills($player) / $this->getDeaths($player);
-	}
-
-	/**
-	 * @param string $name
-	 */
-	public function addPlayerToDatabase(string $name)
-	{
-		$db = new Connection(KFA::getInstance());
-		$sql = $db->prepare("INSERT INTO Players (NAME, KILLS, DEATHS, KDR) VALUES (:name, :kills, :deaths, :kdr)");
-		$sql->bindValue(":name", $name, SQLITE3_TEXT);
-		$sql->bindValue(":kills", 0, SQLITE3_NUM);
-		$sql->bindValue(":deaths", 0, SQLITE3_NUM);
-		$sql->bindValue(":kdr", 0, SQLITE3_FLOAT);
-		$sql->execute();
 	}
 
 	/**
@@ -321,21 +274,6 @@ class DataManager
 		}
 	}
 
-	/**
-	 * @return int
-	 */
-	public static function getRowsDB(): int
-	{
-		$connection = new Connection(KFA::getInstance());
-		$db = $connection->getDatabase();
-		$sql = "SELECT COUNT(NAME) FROM Players";
-		$result = $db->querySingle($sql);
-		if ($result < 10) {
-			return $result;
-		} else {
-			return 10;
-		}
-	}
 
 	/**
 	 * Configure leaderboard

@@ -48,7 +48,7 @@ class RespawnTask extends Task
 	{
 		if ($this->player->getLevel()->getName() == DataManager::getArena()) {
 			$this->player->setGamemode(3);
-			$this->player->addTitle("§4".$this->seconds, "§7...Resurrecting...");
+			$this->player->addTitle("§4" . $this->seconds, "§7...Resurrecting...", 20, 20, 20);
 			$this->player->sendTip("§4You died!");
 		}
 		if ($this->seconds == 0) {

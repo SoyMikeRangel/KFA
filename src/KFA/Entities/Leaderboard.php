@@ -26,7 +26,6 @@ use pocketmine\entity\Human;
 
 class Leaderboard extends Human
 {
-	private static $state = [];
 
 	/**
 	 * @return string
