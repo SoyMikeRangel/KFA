@@ -49,7 +49,7 @@
 
 - <h3>Video:</h3>
 
-<p>SOON</p>
+<a align="center" href="https://www.youtube.com/watch?v=geXA9spiQSI&t=5s"><img src="https://d12swbtw719y4s.cloudfront.net/images/ojodGbF0/ECt60hbGZFFSX0Kcd2If/0ybsxFrRMa.jpeg?w=620"></a>
 
 - _Setup commands_:
 
