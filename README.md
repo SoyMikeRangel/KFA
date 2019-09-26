@@ -28,7 +28,6 @@
 | Version | Zip Download | Phar Download |
 | --- | --- | --- |
 | 1.0 | [GitHub](https://github.com/PocketmineSmashPE/KFA/releases/download/1.0/KFA.zip) | [GitHub](https://github.com/PocketmineSmashPE/KFA/releases/download/1.0/KFA_v1.0-beta.phar) |
-| --- | --- | --- |
 | 1.2 | [GitHub](https://github.com/PocketmineSmashPE/KFA/archive/1.2-beta.zip) | [GitHub](https://github.com/PocketmineSmashPE/KFA/releases/download/1.2-beta/KFA_v1.2-beta.phar) |
 <br>
 
