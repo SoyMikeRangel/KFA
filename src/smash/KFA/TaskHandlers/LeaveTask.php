@@ -13,17 +13,17 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\TaskHandlers;
+namespace smash\KFA\TaskHandlers;
 
 
-use KFA\Database\DataManager;
-use KFA\PluginUtils\PluginUtils;
+use smash\KFA\Database\DataManager;
+use smash\KFA\PluginUtils\PluginUtils;
 use pocketmine\Player;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
@@ -49,6 +49,7 @@ class LeaveTask extends Task
 		if ($this->player->getLevel()->getName() == DataManager::getArena()) {
 			PluginUtils::sendSucessMessage("Leaving FFA, please wait...", $this->player);
 			$this->player->getInventory()->clearAll();
+			$this->player->setGamemode(0);
 			$this->player->setFood(20.0);
 			$this->player->setHealth(20.0);
 			$this->player->removeAllEffects();

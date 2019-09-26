@@ -23,9 +23,9 @@
 #   @link http://www.pocketmine.net/
 
 name: KFA
-main: KFA\KFA
+main: smash\KFA\KFA
 author: PocketmineSmash
-version: 1.0-beta
+version: 1.2-beta
 api: 3.0.0
 description: a (not so) basic FFA plugin for PocketMine-MP
 prefix: '>'

@@ -13,17 +13,17 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\Database;
+namespace smash\KFA\Database;
 
 
-use KFA\KFA;
-use KFA\PluginUtils\PluginUtils;
+use smash\KFA\KFA;
+use smash\KFA\PluginUtils\PluginUtils;
 use pocketmine\level\Position;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -279,7 +279,6 @@ class DataManager
 	 * Configure leaderboard
 	 */
 
-
 	public static function getTops()
 	{
 		self::$leaderboard = [];
@@ -294,7 +293,7 @@ class DataManager
 		$count = count(self::$leaderboard);
 		$break = "\n";
 		if ($count > 0) {
-			$top1 = "§e1. §6Name: §e" . self::$leaderboard[0]['NAME'] . "  §6Kills: §e" . self::$leaderboard[0]['KILLS'];
+			$top1 = "§e1. §6Name: §a" . self::$leaderboard[0]['NAME'] . "  §6Kills: §a" . self::$leaderboard[0]['KILLS'];
 		} else {
 			$top1 = '';
 		}
@@ -344,5 +343,60 @@ class DataManager
 			$top10 = '';
 		}
 		return "§4-----☣§cKFA Stats§4☣-----\n" . "§7Top Kills\n" . $top1 . $break . $top2 . $break . $top3 . $break . $top4 . $break . $top5 . $break . $top6 . $break . $top7 . $break . $top8 . $break . $top9 . $break . $top10;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getTopOne(): string
+	{
+		self::$leaderboard = [];
+		$connection = new Connection(KFA::getInstance());
+		$db = $connection->getDatabase();
+		$sql = "SELECT NAME, KILLS FROM Players ORDER BY KILLS DESC LIMIT 10";
+		$result = $db->query($sql);
+		$number = 0;
+		while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+			self::$leaderboard[$number++] = $row;
+		}
+		$count = count(self::$leaderboard);
+		if ($count > 0) {
+			$top1 = self::$leaderboard[0]['NAME'];
+			return $top1;
+		}
+	}
+
+	/**
+	 * @param Player $player
+	 * @return bool
+	 */
+	public static function isPlaying(Player $player): bool
+	{
+		$config = new Config(KFA::getInstance()->getDataFolder() . "playing.yml", Config::YAML);
+		if ($config->get($player->getName()) == true) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param Player $player
+	 */
+	public static function setPlaying(Player $player): void
+	{
+		$config = new Config(KFA::getInstance()->getDataFolder() . "playing.yml", Config::YAML);
+		$config->set($player->getName(), true);
+		$config->save();
+	}
+
+	/**
+	 * @param Player $player
+	 */
+	public static function unsetPlaying(Player $player): void
+	{
+		$config = new Config(KFA::getInstance()->getDataFolder() . "playing.yml", Config::YAML);
+		$config->set($player->getName(), false);
+		$config->save();
 	}
 }

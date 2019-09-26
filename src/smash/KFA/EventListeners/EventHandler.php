@@ -13,28 +13,31 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\EventListeners;
+namespace smash\KFA\EventListeners;
 
-use KFA\Database\Connection;
-use KFA\Database\DataManager;
-use KFA\Entities\JoinEntity;
-use KFA\Entities\Leaderboard;
-use KFA\KFA;
-use KFA\TaskHandlers\KitTask;
-use KFA\TaskHandlers\LeaveTask;
-use KFA\TaskHandlers\RespawnTask;
+use pocketmine\entity\Entity;
+use pocketmine\network\mcpe\protocol\AddActorPacket;
+use smash\KFA\BossBar\BossBar;
+use smash\KFA\Database\Connection;
+use smash\KFA\Database\DataManager;
+use smash\KFA\Entities\JoinEntity;
+use smash\KFA\Entities\Leaderboard;
+use smash\KFA\KFA;
+use smash\KFA\PluginUtils\PluginUtils;
+use smash\KFA\TaskHandlers\KitTask;
+use smash\KFA\TaskHandlers\RespawnTask;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\entity\EntityDeathEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerExhaustEvent;
-use pocketmine\event\player\PlayerItemHeldEvent;
+use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\item\Item;
 use pocketmine\level\particle\HeartParticle;
 use pocketmine\level\sound\AnvilFallSound;
@@ -71,40 +74,63 @@ class  EventHandler implements Listener
 		$pos = new Vector3($x, $y + 1, $z);
 		if ($player instanceof Player) {
 			if ($player->getLevel()->getFolderName() == DataManager::getArena()) {
-				switch($event->getCause())
-				{
-					case 1: case 2: case 5: case 7: case 8: case 11:
-					//entity attack, projectile, fire, lava, drowning, void
-
-						if ($event->getFinalDamage() > $player->getHealth())
-						{
+				switch ($event->getCause()) {
+					case 1:
+					case 2:
+					case 5:
+					case 7:
+					case 8:
+					case 11:
+						if ($event->getFinalDamage() > $player->getHealth()) {
 							$event->setCancelled();
 							KFA::getInstance()->getScheduler()->scheduleRepeatingTask(new RespawnTask($player), 20);
 							$level->dropItem(new Vector3($x, $y, $z), Item::get(Item::GOLDEN_APPLE, 0, DataManager::getGapples()));
+							$level->addParticle(new HeartParticle($pos, 2));
 							$player->getInventory()->clearAll();
 							$player->getArmorInventory()->clearAll();
 							$player->setHealth(20);
 							$player->setFood(20);
-							$player->getInventory()->setItem(4, Item::get(Item::SLIME_BALL, 0, 1)->setCustomName("§eLeave FFA"));
 							if ($event instanceof EntityDamageByEntityEvent) {
 								$cause = $event->getEntity()->getLastDamageCause();
 								$victim = $event->getEntity();
 								if ($cause instanceof EntityDamageByEntityEvent) {
-									if ($cause->getDamager() instanceof Player && $victim instanceof Player) {
-										$cause->getDamager()->setHealth(20);
-										$level->addParticle(new HeartParticle($pos, 2));
-										$level->addSound(new AnvilFallSound($pos));
+									$cause->getDamager()->setHealth(20);
+									if ($cause->getDamager()->getName() == DataManager::getTopOne()) {
+										$this->addStrike($player, true);
+										$this->addStrike($cause->getDamager(), true);
+									}
+									$level->addSound(new AnvilFallSound($pos));
+									if ($cause->getDamager()->getName() != $victim->getName()) {
 										$this->manager->setKill($cause->getDamager()->getName());
 										$this->manager->setDeath($victim->getName());
 									}
 								}
 							}
 						}
-					break;
+						break;
 					default: //other than those above:
 						return $event->setCancelled();
 				}
 			}
+		}
+	}
+
+	/**
+	 * @param Player $p
+	 * @param $boolHere
+	 * Set a lightning strike
+	 */
+	public function addStrike(Player $p, $boolHere)
+	{
+		if ($boolHere == true) {
+			$light = new AddActorPacket();
+			$light->type = 93;
+			$light->entityRuntimeId = Entity::$entityCount++;
+			$light->metadata = array();
+			$light->position = $p->asVector3()->add(0, $height = 0);
+			$light->yaw = $p->getYaw();
+			$light->pitch = $p->getPitch();
+			$p->dataPacket($light);
 		}
 	}
 
@@ -133,6 +159,21 @@ class  EventHandler implements Listener
 			$player->setGamemode(2);
 			KFA::getInstance()->getScheduler()->scheduleTask(new KitTask($player));
 			$player->addTitle("§c☣ F F A ☣", "§7> Kill them all!");
+			$bar = new BossBar();
+			$bar->setTitle("§5[§k§6II§r§5] §9 = §4KFA §9 = §5[§k§6II§r§5]");
+			$bar->setPercentage(100.0);
+			$bar->addPlayer($player);
+			$ffaplayers = Server::getInstance()->getLevelByName(DataManager::getArena())->getPlayers();
+			if ($player->getName() == DataManager::getTopOne()) {
+				$player->setNameTag($player->getNameTag() . "\n§aTop 1");
+				$player->setDisplayName($player->getNameTag() . "\n§aTop 1");
+				if (count($ffaplayers) > 0) {
+					foreach ($ffaplayers as $player) {
+						$player->sendMessage(PluginUtils::PREFIX . "§9TOP 1 §a" . DataManager::getTopOne() . "§9 Has joined!");
+					}
+				}
+			}
+			DataManager::setPlaying($player);
 			$sql = $connection->getDatabase()->prepare("INSERT OR IGNORE INTO Players(NAME,KILLS,DEATHS,KDR) SELECT :name, :kills, :deaths, :kdr WHERE NOT EXISTS(SELECT * FROM Players WHERE NAME = :name);");
 			$sql->bindValue(":name", $name, SQLITE3_TEXT);
 			$sql->bindValue(":kills", 0, SQLITE3_NUM);
@@ -142,17 +183,6 @@ class  EventHandler implements Listener
 		}
 	}
 
-	/**
-	 * @param PlayerItemHeldEvent $event
-	 */
-	public function onUseSlime(PlayerItemHeldEvent $event)
-	{
-		if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
-			if ($event->getItem()->getId() == Item::SLIME_BALL && $event->getItem()->getCustomName() == "§eLeave FFA") {
-				KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($event->getPlayer()));
-			}
-		}
-	}
 
 	/**
 	 * @param EntityDamageByEntityEvent $event
@@ -184,6 +214,32 @@ class  EventHandler implements Listener
 		}
 	}
 
+	/*
+	* @param PlayerMoveEvent $event
+	* Particles to top one
+	*/
+
+	public function HeartSpiral(PlayerMoveEvent $event)
+	{
+		$player = $event->getPlayer();
+		if ($player->getName() == DataManager::getTopOne()) {
+			$level = $player->getLevel();
+			if ($level == DataManager::getArena()) {
+				$x = $player->getX();
+				$y = $player->getY();
+				$z = $player->getZ();
+				$center = new Vector3($x, $y, $z);
+				$particle = new HeartParticle($center);
+				for ($yaw = 0, $y = $center->y; $y < $center->y + 2; $yaw += (M_PI * 2) / 20, $y += 1 / 20) {
+					$x = -sin($yaw) + $center->x;
+					$z = cos($yaw) + $center->z;
+					$particle->setComponents($x, $y, $z);
+					$level->addParticle($particle);
+				}
+			}
+		}
+	}
+
 	/**
 	 * @param EntityDamageByEntityEvent $event
 	 */
@@ -192,6 +248,16 @@ class  EventHandler implements Listener
 		$npc = $event->getEntity();
 		if ($npc instanceof Leaderboard) {
 			$event->setCancelled(true);
+		}
+	}
+
+	/**
+	 * @param PlayerExhaustEvent $event
+	 */
+	public function noHunger(PlayerExhaustEvent $event)
+	{
+		if ($event->getPlayer()->getLevel()->getFolderName() == DataManager::getArena()) {
+			$event->setCancelled();
 		}
 	}
 }

@@ -13,17 +13,17 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\TaskHandlers;
+namespace smash\KFA\TaskHandlers;
 
 
-use KFA\Database\DataManager;
-use KFA\KFA;
+use smash\KFA\Database\DataManager;
+use smash\KFA\KFA;
 use pocketmine\Player;
 use pocketmine\scheduler\Task;
 
@@ -46,19 +46,21 @@ class RespawnTask extends Task
 	 */
 	public function onRun(int $currentTick)
 	{
-		if ($this->player->getLevel()->getName() == DataManager::getArena()) {
+		if ($this->player->getLevel()->getFolderName() == DataManager::getArena()) {
 			$this->player->setGamemode(3);
 			$this->player->addTitle("§4" . $this->seconds, "§7...Resurrecting...", 20, 20, 20);
 			$this->player->sendTip("§4You died!");
 		}
 		if ($this->seconds == 0) {
-			KFA::getInstance()->getScheduler()->cancelTask($this->getTaskId());
-			$this->player->teleport(DataManager::getRandomSpawn());
-			$this->player->setGamemode(0);
-			$this->player->setHealth(20);
-			$this->player->setFood(20);
-			$this->player->removeAllEffects();
-			KFA::getInstance()->getScheduler()->scheduleTask(new KitTask($this->player));
+			if ($this->player->getLevel()->getFolderName() == DataManager::getArena()) {
+				KFA::getInstance()->getScheduler()->cancelTask($this->getTaskId());
+				$this->player->teleport(DataManager::getRandomSpawn());
+				$this->player->setGamemode(0);
+				$this->player->setHealth(20);
+				$this->player->setFood(20);
+				$this->player->removeAllEffects();
+				KFA::getInstance()->getScheduler()->scheduleTask(new KitTask($this->player));
+			}
 		}
 		$this->seconds--;
 	}

@@ -13,23 +13,24 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA;
+namespace smash\KFA;
 
-use KFA\Commands\KFACommand;
-use KFA\Database\Connection;
-use KFA\Database\DataManager;
-use KFA\Entities\JoinEntity;
-use KFA\Entities\Leaderboard;
-use KFA\EventListeners\EventHandler;
-use KFA\PluginUtils\PluginUtils;
-use KFA\TaskHandlers\UpdateLeaderBoard;
-use KFA\TaskHandlers\UpdateNPC;
+use smash\KFA\Commands\KFACommand;
+use smash\KFA\Database\Connection;
+use smash\KFA\Database\DataManager;
+use smash\KFA\Entities\JoinEntity;
+use smash\KFA\Entities\Leaderboard;
+use smash\KFA\EventListeners\EventHandler;
+use smash\KFA\PluginUtils\PluginUtils;
+use smash\KFA\TaskHandlers\BossBarTask;
+use smash\KFA\TaskHandlers\UpdateLeaderBoard;
+use smash\KFA\TaskHandlers\UpdateNPC;
 use pocketmine\entity\Entity;
 use pocketmine\plugin\PluginBase;
 
@@ -55,6 +56,7 @@ class KFA extends PluginBase
 		$this->getScheduler()->scheduleRepeatingTask(new UpdateLeaderBoard(), 160);
 		Entity::registerEntity(JoinEntity::class, true);
 		Entity::registerEntity(Leaderboard::class, true);
+		$this->getScheduler()->scheduleRepeatingTask(new BossBarTask(), 20);
 	}
 
 
@@ -65,6 +67,7 @@ class KFA extends PluginBase
 	{
 		return self::$instance;
 	}
+
 
 	/**
 	 * @return bool
@@ -97,7 +100,7 @@ class KFA extends PluginBase
 	 */
 	private function savePluginResources()
 	{
-		$resources = ['database.sq3', 'settings.yml'];
+		$resources = ['database.sq3', 'settings.yml', 'playing.yml'];
 		foreach ($resources as $resource) {
 			$this->saveResource($resource);
 		}
@@ -117,6 +120,7 @@ class KFA extends PluginBase
 			return false;
 		}
 	}
+
 
 	/**
 	 * General onDisable actions

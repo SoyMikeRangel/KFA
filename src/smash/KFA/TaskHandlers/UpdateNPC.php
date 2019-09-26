@@ -13,17 +13,17 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\TaskHandlers;
+namespace smash\KFA\TaskHandlers;
 
 
-use KFA\Database\DataManager;
-use KFA\Entities\JoinEntity;
+use smash\KFA\Database\DataManager;
+use smash\KFA\Entities\JoinEntity;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat as TE;

@@ -13,13 +13,13 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\Entities;
+namespace smash\KFA\Entities;
 
 use pocketmine\entity\Entity;
 use pocketmine\entity\Skin;

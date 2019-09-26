@@ -13,15 +13,15 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\PluginUtils;
+namespace smash\KFA\PluginUtils;
 
-use KFA\KFA;
+use smash\KFA\KFA;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat as TE;
 

@@ -13,24 +13,24 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\Commands;
+namespace smash\KFA\Commands;
 
-
-use KFA\Database\Connection;
-use KFA\Database\DataManager;
-use KFA\Entities\EntityManager;
-use KFA\Entities\JoinEntity;
-use KFA\Entities\Leaderboard;
-use KFA\KFA;
-use KFA\PluginUtils\PluginUtils;
-use KFA\TaskHandlers\KitTask;
-use KFA\TaskHandlers\LeaveTask;
+use smash\KFA\BossBar\BossBar;
+use smash\KFA\Database\Connection;
+use smash\KFA\Database\DataManager;
+use smash\KFA\Entities\EntityManager;
+use smash\KFA\Entities\JoinEntity;
+use smash\KFA\Entities\Leaderboard;
+use smash\KFA\KFA;
+use smash\KFA\PluginUtils\PluginUtils;
+use smash\KFA\TaskHandlers\KitTask;
+use smash\KFA\TaskHandlers\LeaveTask;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\command\PluginIdentifiableCommand;
@@ -45,6 +45,9 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 
 	private $manager;
 
+	/**
+	 * KFACommand constructor.
+	 */
 	public function __construct()
 	{
 		$this->manager = new DataManager();
@@ -62,6 +65,7 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 	public function execute(CommandSender $sender, string $commandLabel, array $args)
 	{
 		if ($sender instanceof Player) {
+
 			if (isset($args[0])) {
 				switch ($args[0]) {
 					case 'remnpc':
@@ -77,12 +81,16 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 						}
 						break;
 					case 'npc':
-						if ($sender->isOp()) {
-							$npc = new EntityManager();
-							$npc->setJoinEntity($sender->getPlayer());
-							PluginUtils::sendSucessMessage("NPC Configured!", $sender->getPlayer());
+						if ($sender->getLevel()->getFolderName() == Server::getInstance()->getDefaultLevel()->getFolderName()) {
+							if ($sender->isOp()) {
+								$npc = new EntityManager();
+								$npc->setJoinEntity($sender->getPlayer());
+								PluginUtils::sendSucessMessage("NPC Configured!", $sender->getPlayer());
+							} else {
+								PluginUtils::sendErrorMessage("You cant use this command!", $sender->getPlayer());
+							}
 						} else {
-							PluginUtils::sendErrorMessage("You cant use this command!", $sender->getPlayer());
+							PluginUtils::sendErrorMessage("Please setup npc on default server world!", $sender->getPlayer());
 						}
 						break;
 					case 'arena':
@@ -117,6 +125,21 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 							$sql->bindValue(":deaths", 0, SQLITE3_NUM);
 							$sql->bindValue(":kdr", 1, SQLITE3_FLOAT);
 							$sql->execute();
+							$ffaplayers = Server::getInstance()->getLevelByName(DataManager::getArena())->getPlayers();
+							if ($sender->getName() == DataManager::getTopOne()) {
+								$sender->setNameTag($sender->getNameTag() . "\n§aTop 1");
+								$sender->setDisplayName($sender->getNameTag() . "\n§aTop 1");
+								if (count($ffaplayers) > 0) {
+									foreach ($ffaplayers as $player) {
+										$player->sendMessage(PluginUtils::PREFIX . "§9TOP 1 §a" . DataManager::getTopOne() . "§9 Has joined!");
+									}
+								}
+							}
+							DataManager::setPlaying($sender);
+							$bar = new BossBar();
+							$bar->setTitle("§5[§k§6II§r§5] §9 = §4KFA §9 = §5[§k§6II§r§5]");
+							$bar->setPercentage(100.0);
+							$bar->addPlayer($sender);
 							$sender->teleport(DataManager::getRandomSpawn());
 							KFA::getInstance()->getScheduler()->scheduleTask(new KitTask($sender->getPlayer()));
 							$sender->addTitle("§c☣FFA☣", "§7> Be the last one!", 20, 20, 20);
@@ -157,6 +180,9 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 					case 'leave':
 						if ($sender->getLevel()->getName() == DataManager::getArena()) {
 							KFA::getInstance()->getScheduler()->scheduleTask(new LeaveTask($sender->getPlayer()));
+							$bar = new BossBar();
+							$bar->removePlayer($sender);
+							$bar->sendRemoveBossPacket([$sender]);
 						}
 						break;
 					case 'help':
@@ -174,12 +200,13 @@ class KFACommand extends Command implements PluginIdentifiableCommand
 						}
 						break;
 					case 'tops':
-						if ($sender->isOp()) {
-							$npc = new EntityManager();
-							$npc->setLeaderboardEntity($sender->getPlayer());
-						} else {
-							PluginUtils::sendErrorMessage("You cant use this command!", $sender->getPlayer());
-						}
+						if ($sender->getLevel()->getFolderName() == Server::getInstance()->getDefaultLevel()->getFolderName())
+							if ($sender->isOp()) {
+								$npc = new EntityManager();
+								$npc->setLeaderboardEntity($sender->getPlayer());
+							} else {
+								PluginUtils::sendErrorMessage("You cant use this command!", $sender->getPlayer());
+							}
 						break;
 					default:
 						PluginUtils::sendErrorMessage('use: </ffa help>', $sender->getPlayer());

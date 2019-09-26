@@ -13,15 +13,15 @@
  * (at your option) any later version.
  *
  * @author PocketMineSmash
- * @link http://www.pocketmine.net/
+ * @link https://github.com/PocketmineSmashPE/KFA
  *
  *
 */
 declare(strict_types=1);
 
-namespace KFA\Database;
+namespace smash\KFA\Database;
 
-use KFA\KFA;
+use smash\KFA\KFA;
 use SQLite3;
 
 class Connection extends SQLite3

@@ -42,3 +42,6 @@ knockback: 1
 
 # Enable or disable hunger in arena
 hunger: false
+
+# Enable or disable scoreboard
+scoreboard: true
